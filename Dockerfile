@@ -4,9 +4,9 @@ FROM python:3.8 AS build-stage
 # update packages
 RUN pip install pipenv
 
-COPY . /devops
+COPY . /sourceassist
 
-WORKDIR /devops
+WORKDIR /sourceassist
 
 RUN pipenv install --dev
 RUN pipenv run python -m build
@@ -21,5 +21,5 @@ COPY --from=build-stage /dist /dist
 WORKDIR /dist
 RUN pip install "$(ls *.tar.gz)"
 
-ENTRYPOINT ["devops"]
+ENTRYPOINT ["sa"]
 CMD ["--help"]

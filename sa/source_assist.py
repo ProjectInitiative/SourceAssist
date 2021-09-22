@@ -4,10 +4,10 @@ import sys
 # add current directory to path
 sys.path.insert(0, '')
 
-from devops._version import __version__
+from sa._version import __version__
 import os, argparse, git
-from devops.versioning import version_bump, check_prev_commit
-from devops.repo import git_push_repo, is_git_repo, reattach_head
+from sa.versioning import version_bump, check_prev_commit
+from sa.repo import git_push_repo, is_git_repo, reattach_head
 
 def main():
     # initialize argparser

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from devops.repo import get_changed_files
+from sa.repo import get_changed_files
 import os, re, pathlib, json
 from tempfile import mkstemp
 from shutil import move, copymode
