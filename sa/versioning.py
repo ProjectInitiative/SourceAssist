@@ -10,6 +10,9 @@ def check_prev_commit(repo, custom_tags):
     """Check to make sure the previous commit is not an automated on or contains specific tags"""
     return None
 
+def version_get(files, options):
+    return
+
 def version_bump(repo, files, options):
     # If repo is valid, get the most recent commit hash
     # short_hash = repo.git.rev_parse('HEAD', short=True)
@@ -56,7 +59,7 @@ def search_json_dict(dict_obj, file_names, version_data = [], write=False):
 
     if isinstance(dict_obj, list):
         for obj in dict_obj:
-            search_json_dict(obj, file_names)
+            version_data + search_json_dict(obj, file_names, version_data=version_data)
     elif isinstance(dict_obj, dict):
         # check if all keys are in dictionary
         if not(['version','file'] - dict_obj.keys()):
@@ -67,12 +70,13 @@ def search_json_dict(dict_obj, file_names, version_data = [], write=False):
                 if write:
                     dict_obj['version'] = update_version(dict_obj['version'])
                     print(f'Updated to: {dict_obj["file"]} {dict_obj["version"]}')
-                return (dict_obj['file'], dict_obj['version'])
+                version_data.append((dict_obj['file'], dict_obj['version']))
         # check for a nested dictionary or list of dictionaries
         else:
             for k,v in dict_obj.items():
                 if isinstance(v, (dict, list)):
-                    search_json_dict(v, file_names)
+                    version_data = search_json_dict(v, file_names, version_data=version_data)
+    return version_data
 
 def write_version_file(file_path, regex_pattern, **kwargs):
     """Bumps up the build version number of the specified file"""

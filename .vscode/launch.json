@@ -15,8 +15,8 @@
             "name": "Python: run test case",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/devops/devops_app.py",
-            "args": ["bumpversion", "-d", "-r", "${workspaceFolder}", "${workspaceFolder}/testcases/docker-info.json"],
+            "program": "${workspaceFolder}/sa/source_assist.py",
+            "args": ["version", "bump", "-d", "-r", "${workspaceFolder}", "${workspaceFolder}/testcases/docker-info.json"],
             "console": "integratedTerminal"
         }
     ]

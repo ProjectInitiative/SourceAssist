@@ -6,7 +6,7 @@ sys.path.insert(0, '')
 
 from sa._version import __version__
 import os, argparse, git
-from sa.versioning import version_bump, check_prev_commit
+from sa.versioning import version_get, version_bump, check_prev_commit
 from sa.repo import git_push_repo, is_git_repo, reattach_head
 
 def main():
@@ -105,7 +105,7 @@ def get_files(infiles):
                 files.append(os.path.abspath(f))
     
     if (len(files) == 0):
-        print('no files provided, use \'devops -h\' for more details')
+        print('no files provided, use \'-h|--help\' for more details'.format())
         exit(1)
     return files
 
