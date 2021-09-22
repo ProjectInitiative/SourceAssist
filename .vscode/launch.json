@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: run test case",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/devops/devops_app.py",
+            "args": ["bumpversion", "-d", "-r", "${workspaceFolder}", "${workspaceFolder}/testcases/docker-info.json"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

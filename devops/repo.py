@@ -3,14 +3,13 @@
 import os, git
 
 # push code from an https cloned repo
-def push_git_repo(repo, username, password):
+def git_push_repo(repo, username, password):
 
     for remote in repo.remotes:
         index = remote.url.find('//') + 2
         new_url = remote.url[:index] + f'{username}:{password}@' + remote.url[index:]
         remote.set_url(new_url)
 
-    
     os.environ['GIT_USERNAME'] = username
     os.environ['GIT_PASSWORD'] = password
     for remote in repo.remotes:
@@ -33,3 +32,7 @@ def is_git_repo(path):
         return True
     except Exception:
         return False
+
+def get_changed_files(repo):
+    """return a list of all of the changed files based on the last commit"""
+    return list(repo.commit(repo.head.object.hexsha).stats.files.keys())

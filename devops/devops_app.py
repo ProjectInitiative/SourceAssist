@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+import sys
+# add current directory to path
+sys.path.insert(0, '')
+
 from devops._version import __version__
-import sys, os, argparse, git
-from devops.versioning import bump_version_number
-from devops.repo import push_git_repo, is_git_repo, reattach_head
+import os, argparse, git
+from devops.versioning import version_bump, check_prev_commit
+from devops.repo import git_push_repo, is_git_repo, reattach_head
 
 def main():
     # initialize argparser
@@ -23,42 +27,54 @@ def main():
                     type=str,
                     help='git email to use during commits, defaults to \'jenkins@noreply.com\'')
 
-    # gitpush
-    parser_gitpush = subparsers.add_parser('gitpush')
-    add_required_creds_args(parser_gitpush)
-    add_required_repo_args(parser_gitpush)
+    # git
+    parser_git = subparsers.add_parser('git')
+    subparser_git = parser_git.add_subparsers(dest='git_subcommand')
+    # git push 
+    subparser_push = subparser_git.add_parser('push')
+    add_required_creds_args(subparser_push)
+    add_required_repo_args(subparser_push)
+    # git checkprevcommit
+    subparser_checkprevcommit = subparsers.add_parser('checkprevcommit')
+    add_required_repo_args(subparser_checkprevcommit)
 
-    # bumpversion
-    parser_bumpversion = subparsers.add_parser('bumpversion')
-    add_required_repo_args(parser_bumpversion)
-    parser_bumpversion.add_argument(
-                    dest='files', 
-                    type=str, 
-                    nargs='*',
-                    help='list all files to be updated with new version number')
+
+    # version
+    parser_version = subparsers.add_parser('version')
+    subparser_version = parser_version.add_subparsers(dest='version_subcommand')
+    # version get
+    subparser_get = subparser_version.add_parser('get')
+    add_optional_docker_arg(subparser_get)
+    add_required_files_args(subparser_get)
+    # version bump
+    subparser_bump = subparser_version.add_parser('bump')
+    add_required_repo_args(subparser_bump)
+    add_optional_docker_arg(subparser_bump)
+    add_required_files_args(subparser_bump)
     # TODO add flag to allow for custom provided versioning script
-    
-    # checkprevcommit
-    parser_checkprevcommit = subparsers.add_parser('checkprevcommit')
-    add_required_repo_args(parser_checkprevcommit)
-
 
 
     # Process CLI arguments
     options = parser.parse_args()
 
-    if options.command == 'gitpush':
-        push_git_repo(get_git_repo(options.repo_dir), options.username, options.password)
-        exit()
+    if options.command == 'git':
+        if options.git_subcommand == 'push':
+            git_push_repo(get_git_repo(options.repo_dir), options.username, options.password)
+            exit()
+        elif options.git_subcommand == 'checkprevcommit':
+            #TODO: implement function
+            check_prev_commit(get_git_repo(options.repo_dir))
     
-    elif options.command == 'bumpversion':
-        # Process all file paths provided and only include the valid files 
-        bump_version_number(get_git_repo(options.repo_dir), options.files, options)
-        exit()
-    
-    elif options.command == 'checkprevcommit':
-        pass
-        # check_prev_commit(get_git_repo(options.repo_dir))
+    elif options.command == 'version':
+        if options.version_subcommand == 'bump':
+            # Process all file paths provided and only include the valid files 
+            version_bump(get_git_repo(options.repo_dir), get_files(options.files), options)
+            exit()
+        elif options.version_subcommand == 'get':
+            # Process all files paths provided and only include the valid files
+            version_get(get_files(options.files), options)
+            exit()
+
 
 def get_git_repo(repo_dir):
     # get/validate absolute path of provided repository directory
@@ -93,15 +109,27 @@ def get_files(infiles):
         exit(1)
     return files
 
+def add_required_files_args(parser):
+    parser.add_argument(
+                    dest='files', 
+                    type=str, 
+                    nargs='*',
+                    help='list of all files to be to be operated on')
+
+def add_optional_docker_arg(parser):
+    parser.add_argument('-d','--docker',
+                    action='store_true',
+                    help='indicate if provided files are docker-info.json files for versioning')
+
 def add_required_creds_args(parser):
     parser.add_argument('-u','--username',
-                        dest='username',
-                        required=True,
-                        help='username for logging into service')
+                    dest='username',
+                    required=True,
+                    help='username for logging into service')
     parser.add_argument('-p','--password',
-                        dest='password',
-                        required=True,
-                        help='password for logging into service')
+                    dest='password',
+                    required=True,
+                    help='password for logging into service')
 
 def add_required_repo_args(parser):
     parser.add_argument('-r','--repo',

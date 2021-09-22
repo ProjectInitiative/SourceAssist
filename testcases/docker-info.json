@@ -1,0 +1,13 @@
+{
+    "docker_build": [
+        {
+            "img_name": "test-image",
+            "file": "Dockerfile-Test",
+            "tags": [],
+            "version": "2.4.5",
+            "docker_registries": [
+                "localhost:5000"
+            ]
+        }
+    ]
+}
