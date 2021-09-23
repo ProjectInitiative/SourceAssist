@@ -44,12 +44,8 @@ def version_bump(repo, files, options):
 
     repo.git.config(['user.name', [git_username]])    
     repo.git.config(['user.email', [git_useremail]])    
-    repo.git.commit('-m',
-                     '[git-version-bump]')
+    repo.git.commit('-m', build_info_string)
     #TODO: fix multi-build number issues
-    # repo.git.commit('-m',
-    #                  '[git-version-bump]\nBuild Number: ' 
-    #                     + build_num)
     # repo.create_tag(''.join(['v',build_num]), message=f'Automatic tag \"v{build_num}\"')
 
 def update_version(prev_ver_num):
