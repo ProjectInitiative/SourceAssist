@@ -28,10 +28,13 @@ def version_bump(repo, files, options):
 
     # Regex pattern to match all version numbers
     version_num_pattern = re.compile('(\\d*\\d?\\.\\d*\\d)+')
-    build_num = ''
+    build_info_string = '[git-version-bump]'
     for f in files:
-        build_num = write_version_file(f, version_num_pattern, repo=repo, options=options)
+        build_info = parse_version_file(f, version_num_pattern, True, repo=repo, options=options)
+        for info in build_info:
+            build_info_string = build_info_string.join(['\n', info[0], ': ', info[1]])
         repo.git.add(f)
+
 
     repo.git.config(['user.name', [git_username]])    
     repo.git.config(['user.email', [git_useremail]])    
@@ -78,54 +81,60 @@ def search_json_dict(dict_obj, file_names, version_data = [], write=False):
                     version_data = search_json_dict(v, file_names, version_data=version_data)
     return version_data
 
-def write_version_file(file_path, regex_pattern, **kwargs):
+def parse_version_file(file_path, regex_pattern, write=False, **kwargs):
     """Bumps up the build version number of the specified file"""
 
-    #Create temp file
-    fh, abs_path = mkstemp()
+    version_info = []
     new_version_num = ''
+    new_file = None
+
+    with open(file_path, 'r') as old_file:
+        if write:
+            #Create temp file
+            fh, abs_path = mkstemp()
+            new_file = fdopen(fh, 'w')
 
 
-    with fdopen(fh, 'w') as new_file:
-        with open(file_path, 'r') as old_file:
-
-            # check if JSON, and if the file is a docker versioning JSON
-            if file_path.endswith('.json'):
-                if 'options' in kwargs and 'repo' in kwargs:
-                    repo = kwargs.get('repo')
-                    options = kwargs.get('options')
-                    if 'docker' in options and options.docker:
-                        changed_files = get_changed_files(repo)
-                        docker_info = json.load(old_file)
-                        search_json_dict(docker_info, [str(path) for path in changed_files])
-                        # search_json_dict(docker_info, changed_files)
+        # check if JSON, and if the file is a docker versioning JSON
+        if file_path.endswith('.json'):
+            if 'options' in kwargs and 'repo' in kwargs:
+                repo = kwargs.get('repo')
+                options = kwargs.get('options')
+                if 'docker' in options and options.docker:
+                    changed_files = get_changed_files(repo)
+                    docker_info = json.load(old_file)
+                    version_info = version_info + search_json_dict(docker_info, [str(path) for path in changed_files])
+                    if write:
                         json.dump(docker_info, new_file, indent=4)
 
-            else:
-                for i, line in enumerate(old_file):
-                    
-                    matches = re.finditer(regex_pattern, line)
-                    if not is_valid_version(file_path, line):
+        else:
+            for i, line in enumerate(old_file):
+                
+                matches = re.finditer(regex_pattern, line)
+                if not is_valid_version(file_path, line):
+                    if write:
                         new_file.write(line)
-                        continue
+                    continue
 
-                    for match in matches:
-                            prev_ver_num = match.group()
-                            new_version_num = update_version(prev_ver_num)
-                            new_line = line.replace(prev_ver_num, new_version_num)
-                            new_file.write(new_line)
+                for match in matches:
+                    prev_ver_num = match.group()
+                    new_version_num = update_version(prev_ver_num)
+                    version_info.append((old_file.name, new_version_num))
+                    new_line = line.replace(prev_ver_num, new_version_num)
+                    if write:
+                        new_file.write(new_line)
+                        print(f'Found on line {i+1}: {prev_ver_num}')
+                        print(f'Changed {line.strip()} to {new_line.strip()}')
+    if write:
+        new_file.close()
+        #Copy the file permissions from the old file to the new file
+        copymode(file_path, abs_path)
+        #Remove original file
+        remove(file_path)
+        #Move new file
+        move(abs_path, file_path)
 
-                            print(f'Found on line {i+1}: {prev_ver_num}')
-                            print(f'Changed {line.strip()} to {new_line.strip()}')
-                    
-    #Copy the file permissions from the old file to the new file
-    copymode(file_path, abs_path)
-    #Remove original file
-    remove(file_path)
-    #Move new file
-    move(abs_path, file_path)
-    
-    return new_version_num
+    return version_info
 
 
 

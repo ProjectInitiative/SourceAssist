@@ -2,10 +2,10 @@
     "docker_build": [
         {
             "img_name": "test-image",
-            "file": "Dockerfile-Test",
+            "file": "Dockerfile",
             "tags": [],
-            "version": "2.4.5",
-            "docker_registries": [
+            "version": "2.4.3",
+            "docker_registries":[
                 "localhost:5000"
             ]
         }
