@@ -72,7 +72,9 @@ def main():
             exit()
         elif options.version_subcommand == 'get':
             # Process all files paths provided and only include the valid files
-            version_get(get_files(options.files), options)
+            version_info = version_get(get_files(options.files), options)
+            for file,version in version_info:
+                print(''.join([file,' ', version]))
             exit()
 
 

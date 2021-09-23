@@ -12,11 +12,35 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: run test case",
+            "name": "Python: run docker version bump test case",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/sa/source_assist.py",
             "args": ["version", "bump", "-d", "-r", "${workspaceFolder}", "${workspaceFolder}/testcases/docker-info.json"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: run python version bump test case",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sa/source_assist.py",
+            "args": ["version", "bump", "-r", "${workspaceFolder}", "${workspaceFolder}/testcases/_version.py"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: run docker version get test case",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sa/source_assist.py",
+            "args": ["version", "get", "-d", "${workspaceFolder}/testcases/docker-info.json"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: run python version get test case",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sa/source_assist.py",
+            "args": ["version", "get", "${workspaceFolder}/testcases/_version.py"],
             "console": "integratedTerminal"
         }
     ]

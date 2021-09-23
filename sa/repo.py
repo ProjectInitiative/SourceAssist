@@ -35,4 +35,6 @@ def is_git_repo(path):
 
 def get_changed_files(repo):
     """return a list of all of the changed files based on the last commit"""
-    return list(repo.commit(repo.head.object.hexsha).stats.files.keys())
+    if repo != None:
+        return list(repo.commit(repo.head.object.hexsha).stats.files.keys())
+    return []
