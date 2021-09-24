@@ -20,7 +20,8 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
-        "gitpython"
+        "gitpython",
+        "docker"
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["sa = sa.source_assist:main",],},

@@ -3,7 +3,7 @@
 import os, git
 
 # push code from an https cloned repo
-def git_push_repo(repo, username, password):
+def push(repo, username, password):
 
     for remote in repo.remotes:
         index = remote.url.find('//') + 2

@@ -42,6 +42,14 @@
             "program": "${workspaceFolder}/sa/source_assist.py",
             "args": ["version", "get", "${workspaceFolder}/testcases/_version.py"],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: run python docker build",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/sa/source_assist.py",
+            "args": ["docker", "build", "${workspaceFolder}/testcases/docker-info.json"],
+            "console": "integratedTerminal"
         }
     ]
 }

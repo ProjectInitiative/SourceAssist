@@ -1,4 +1,5 @@
-#TEST DOCKERFILE2
-# make changes here to test versions
-# making change 1
-# making change 2
+FROM alpine:latest
+
+RUN apk update
+RUN apk add --no-cache bash jq
+

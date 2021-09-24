@@ -4,10 +4,8 @@ import sys
 # add current directory to path
 sys.path.insert(0, '')
 
-from sa._version import __version__
+from sa import _version, repo as rp, versioning, docker_api
 import os, argparse, git
-from sa.versioning import version_get, version_bump, check_prev_commit
-from sa.repo import git_push_repo, is_git_repo, reattach_head
 
 def main():
     # initialize argparser
@@ -16,7 +14,7 @@ def main():
     subparsers = parser.add_subparsers(dest='command')
 
     parser.add_argument('--version', action='version',
-                    version='%(prog)s {version}'.format(version=__version__))
+                    version='%(prog)s {version}'.format(version=_version.__version__))
 
     parser.add_argument('-gu','--gitusername',
                     dest='git_username',
@@ -27,55 +25,75 @@ def main():
                     type=str,
                     help='git email to use during commits, defaults to \'jenkins@noreply.com\'')
 
+
     # git
     parser_git = subparsers.add_parser('git')
     subparser_git = parser_git.add_subparsers(dest='git_subcommand')
     # git push 
-    subparser_push = subparser_git.add_parser('push')
-    add_required_creds_args(subparser_push)
-    add_required_repo_args(subparser_push)
+    git_subparser_push = subparser_git.add_parser('push')
+    add_required_creds_args(git_subparser_push)
+    add_required_repo_args(git_subparser_push)
     # git checkprevcommit
-    subparser_checkprevcommit = subparsers.add_parser('checkprevcommit')
-    add_required_repo_args(subparser_checkprevcommit)
+    git_subparser_checkprevcommit = subparsers.add_parser('checkprevcommit')
+    add_required_repo_args(git_subparser_checkprevcommit)
 
 
     # version
     parser_version = subparsers.add_parser('version')
     subparser_version = parser_version.add_subparsers(dest='version_subcommand')
     # version get
-    subparser_get = subparser_version.add_parser('get')
-    add_optional_docker_arg(subparser_get)
-    add_required_files_args(subparser_get)
+    version_subparser_get = subparser_version.add_parser('get')
+    add_optional_docker_arg(version_subparser_get)
+    add_required_files_args(version_subparser_get)
     # version bump
-    subparser_bump = subparser_version.add_parser('bump')
-    add_required_repo_args(subparser_bump)
-    add_optional_docker_arg(subparser_bump)
-    add_required_files_args(subparser_bump)
+    version_subparser_bump = subparser_version.add_parser('bump')
+    add_required_repo_args(version_subparser_bump)
+    add_optional_docker_arg(version_subparser_bump)
+    add_required_files_args(version_subparser_bump)
     # TODO add flag to allow for custom provided versioning script
+
+
+    # docker
+    parser_docker = subparsers.add_parser('docker')
+    subparser_docker = parser_docker.add_subparsers(dest='docker_subcommand')
+    # docker build
+    docker_subparser_build = subparser_docker.add_parser('build')
+    add_required_files_args(docker_subparser_build)
+    # docker geninfo
+    #TODO: generate sample docker info json file
 
 
     # Process CLI arguments
     options = parser.parse_args()
 
     if options.command == 'git':
+
         if options.git_subcommand == 'push':
-            git_push_repo(get_git_repo(options.repo_dir), options.username, options.password)
+            rp.push(get_git_repo(options.repo_dir), options.username, options.password)
             exit()
         elif options.git_subcommand == 'checkprevcommit':
             #TODO: implement function
-            check_prev_commit(get_git_repo(options.repo_dir))
-    
+            rp.check_prev_commit(get_git_repo(options.repo_dir))
+
     elif options.command == 'version':
+
         if options.version_subcommand == 'bump':
             # Process all file paths provided and only include the valid files 
-            version_bump(get_git_repo(options.repo_dir), get_files(options.files), options)
+            rp.version_bump(get_git_repo(options.repo_dir), get_files(options.files), options)
             exit()
         elif options.version_subcommand == 'get':
             # Process all files paths provided and only include the valid files
-            version_info = version_get(get_files(options.files), options)
+            version_info = versioning.version_get(get_files(options.files), options)
             for file,version in version_info:
                 print(''.join([file,' ', version]))
             exit()
+
+    elif options.command == 'docker':
+
+        if options.docker_subcommand == 'build':
+            docker_api.build(get_files(options.files))
+        elif options.docker_subcommand == 'push':
+            docker_api.push()
 
 
 def get_git_repo(repo_dir):
@@ -90,14 +108,15 @@ def get_git_repo(repo_dir):
             exit(1)
     
     # validate provided path is a git repository and setup for use 
-    if (is_git_repo(abs_repo_path)):
+    if (rp.is_git_repo(abs_repo_path)):
         repo = git.Repo(abs_repo_path)
-        reattach_head(repo)
+        rp.reattach_head(repo)
     else:
         # raise Exception(f"{repo_dir} is not a valid git repository")
         print(f'{abs_repo_path} is not a valid git repository')
         exit(1)
     return repo
+
 
 def get_files(infiles):
     files = []
@@ -111,6 +130,7 @@ def get_files(infiles):
         exit(1)
     return files
 
+
 def add_required_files_args(parser):
     parser.add_argument(
                     dest='files', 
@@ -118,10 +138,12 @@ def add_required_files_args(parser):
                     nargs='*',
                     help='list of all files to be to be operated on')
 
+
 def add_optional_docker_arg(parser):
     parser.add_argument('-d','--docker',
                     action='store_true',
                     help='indicate if provided files are docker-info.json files for versioning')
+
 
 def add_required_creds_args(parser):
     parser.add_argument('-u','--username',
@@ -133,12 +155,14 @@ def add_required_creds_args(parser):
                     required=True,
                     help='password for logging into service')
 
+
 def add_required_repo_args(parser):
     parser.add_argument('-r','--repo',
                     dest='repo_dir',
                     type=str,
                     required=True,
                     help='specific path to git project files')
+
 
 if __name__ == '__main__':
     sys.exit(main())

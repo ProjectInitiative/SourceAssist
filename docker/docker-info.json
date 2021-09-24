@@ -1,0 +1,13 @@
+{
+    "docker_build": [
+        {
+            "img_name": "sourceassist",
+            "file": "Dockerfile",
+            "tags": [],
+            "version": "0.2.2",
+            "docker_registries": [
+                "localhost:5000"
+            ]
+        }
+    ]
+}

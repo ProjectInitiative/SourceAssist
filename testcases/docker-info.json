@@ -2,21 +2,33 @@
     "docker_build": [
         {
             "img_name": "test-image",
-            "file": "Dockerfile-test",
-            "tags": [],
+            "file": "testcases/Dockerfile-test",
+            "tags": [
+                "tag1",
+                "tag2"
+            ],
             "version": "2.4.5",
             "docker_registries": [
-                "localhost:5000"
-            ]
+                "localhost:5000",
+                "remote:5000"
+            ],
+            "build_args":
+            {}
         },
         {
             "img_name": "test-image2",
-            "file": "Dockerfile2-test",
-            "tags": [],
+            "file": "testcases/Dockerfile2-test",
+            "tags": [
+                "tag1",
+                "tag2"
+            ],
             "version": "10.3.0",
             "docker_registries": [
-                "localhost:5000"
-            ]
+                "localhost:5000",
+                "remote:5000"
+            ],
+            "build_args":
+            {}
         }
     ]
 }

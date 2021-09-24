@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-from sa.repo import get_changed_files
+from sa import utils, repo as rp
 import os, re, pathlib, json
-from tempfile import mkstemp
-from shutil import move, copymode
-from os import fdopen, remove
-
+import tempfile
+import shutil
 def check_prev_commit(repo, custom_tags):
     """Check to make sure the previous commit is not an automated on or contains specific tags"""
     return None
@@ -25,11 +23,11 @@ def version_bump(repo, files, options):
     if options.git_username != None:
         git_username = options.git_username
     else:
-        git_username = 'Jenkins'
+        git_username = 'SourceAssist'
     if options.git_useremail != None:
         git_useremail = options.git_useremail
     else:
-        git_useremail = 'jenkins@noreply.com'
+        git_useremail = 'SourceAssist@noreply.com'
 
 
     # Regex pattern to match all version numbers
@@ -60,31 +58,26 @@ def update_version(prev_ver_num):
     new_version_num = ''.join([new_version_num, str(build_num)])
     return new_version_num
 
-def search_json_dict(dict_obj, file_names, version_data = [], write=False):
+def version_data_from_dict(dict_obj, keys, file_names, write=False):
 
-    if isinstance(dict_obj, list):
-        for obj in dict_obj:
-            version_data + search_json_dict(obj, file_names, version_data=version_data, write=write)
-    elif isinstance(dict_obj, dict):
-        # check if all keys are in dictionary
-        if not(['version','file'] - dict_obj.keys()):
-            # only update version number for files that have been modified
-            if any([dict_obj['file'].lower() in file_name.lower() for file_name in file_names]):
-                print(f'Found on changes in: {dict_obj["file"]} {dict_obj["version"]}')
-                # update version number if specified
-                dict_obj['version'] = update_version(dict_obj['version'])
-                print(f'Updated to: {dict_obj["file"]} {dict_obj["version"]}')
-                # write and return only updated version numbers
-                version_data.append((dict_obj['file'], dict_obj['version']))
-            
-            elif not write:
-                # return all version data found
-                version_data.append((dict_obj['file'], dict_obj['version']))
-        # check for a nested dictionary or list of dictionaries
-        else:
-            for k,v in dict_obj.items():
-                if isinstance(v, (dict, list)):
-                    version_data = search_json_dict(v, file_names, version_data=version_data, write=write)
+    version_data = []
+    found_dicts = utils.find_key_pairs(dict_obj, keys)
+
+    for found_dict in found_dicts:
+
+        # only update version number for files that have been modified
+        if any([found_dict['file'].lower() in file_name.lower() for file_name in file_names]):
+            print(f'Found on changes in: {found_dict["file"]} {found_dict["version"]}')
+            # update version number if specified
+            found_dict['version'] = update_version(found_dict['version'])
+            print(f'Updated to: {found_dict["file"]} {found_dict["version"]}')
+            # write and return only updated version numbers
+            version_data.append((found_dict['file'], found_dict['version']))
+        
+        elif not write:
+            # return all version data found
+            version_data.append((found_dict['file'], found_dict['version']))
+        
     return version_data
 
 def parse_version_file(file_path, regex_pattern, write=False, **kwargs):
@@ -104,16 +97,14 @@ def parse_version_file(file_path, regex_pattern, write=False, **kwargs):
     with open(file_path, 'r') as old_file:
         if write:
             #Create temp file
-            fh, abs_path = mkstemp()
-            new_file = fdopen(fh, 'w')
-
+            fh, abs_path = tempfile.mkstemp()
+            new_file = os.fdopen(fh, 'w')
 
         # check if JSON, and if the file is a docker versioning JSON
-
         if options != None and 'docker' in options and options.docker:
-            changed_files = get_changed_files(repo)
+            changed_files = rp.get_changed_files(repo)
             docker_info = json.load(old_file)
-            version_info = version_info + search_json_dict(docker_info, [str(path) for path in changed_files], write=write)
+            version_info = version_info + version_data_from_dict(docker_info, ['version','file'], [str(path) for path in changed_files], write=write)
             if write:
                 json.dump(docker_info, new_file, indent=4)
 
@@ -138,11 +129,11 @@ def parse_version_file(file_path, regex_pattern, write=False, **kwargs):
     if write:
         new_file.close()
         #Copy the file permissions from the old file to the new file
-        copymode(file_path, abs_path)
+        shutil.copymode(file_path, abs_path)
         #Remove original file
-        remove(file_path)
+        os.remove(file_path)
         #Move new file
-        move(abs_path, file_path)
+        shutil.move(abs_path, file_path)
 
     return version_info
 
