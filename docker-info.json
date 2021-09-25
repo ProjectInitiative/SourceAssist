@@ -1,0 +1,13 @@
+{
+    "docker_build_info": [
+        {
+            "img_name": "source-assist",
+            "file": "Dockerfile",
+            "tags": [],
+            "version": "0.3.2",
+            "docker_registries": [
+                "ghcr.io/projectinitiative"
+            ]
+        }
+    ]
+}
