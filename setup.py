@@ -21,6 +21,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "gitpython",
+        "gitdb",
         "docker"
     ],
     python_requires=">=3.6",
