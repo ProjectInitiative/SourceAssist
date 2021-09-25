@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-gitpython = "*"
+GitPython = "*"
 docker = "*"
 
 [dev-packages]
-build = "*"
 pylint = "*"
 pipenv-setup = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"
