@@ -57,4 +57,5 @@ SourceAssist is mapped to `sa` once installed.
 * Other container buildkits such as buildah and podman
 * Checking previous commit messages for specifc tags/strings to indicate if a commit was a build
 * Ability to provide custom version python parsing scripts
+* Add docker install and mounting instructions for building docker containers from within the docker container
 * Open to suggestions (Open an [issue](https://github.com/ProjectInitiative/SourceAssist/issues/new/choose)!)
