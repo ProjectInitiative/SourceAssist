@@ -11,6 +11,7 @@ docker = "*"
 pylint = "*"
 pipenv-setup = "*"
 twine = "*"
+build = "*"
 
 [requires]
 python_version = "3.8"

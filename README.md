@@ -18,6 +18,8 @@ pip install source-assist
 
 ### Docker/OCI
 
+[ghcr](https://github.com/ProjectInitiative/SourceAssist/pkgs/container/source-assist)
+
 [Docker-hub](https://hub.docker.com/repository/docker/projectinitiative/source-assist)
 
 ```bash

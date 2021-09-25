@@ -9,7 +9,7 @@ COPY . /sourceassist
 WORKDIR /sourceassist
 
 RUN pipenv install --dev
-RUN pipenv run python -m build
+RUN pipenv run python setup.py sdist bdist_wheel
 RUN cp -r ./dist /dist
 
 
@@ -19,7 +19,8 @@ FROM python:alpine AS app-container
 RUN apk add git
 COPY --from=build-stage /dist /dist
 WORKDIR /dist
-RUN pip install "$(ls *.tar.gz)"
+RUN pip install "$(ls *.whl)"
+# RUN pip install "$(ls *.tar.gz)"
 
 ENTRYPOINT ["sa"]
 CMD ["--help"]
