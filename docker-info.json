@@ -4,7 +4,7 @@
             "img_name": "source-assist",
             "file": "Dockerfile",
             "tags": [],
-            "version": "0.3.3",
+            "version": "0.3.4",
             "docker_registries": [
                 "projectinitiative",
                 "ghcr.io/projectinitiative"
