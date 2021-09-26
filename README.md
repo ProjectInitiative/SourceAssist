@@ -28,7 +28,11 @@ docker pull projectinitiative/source-assist:latest
 docker pull ghcr.io/projectinitiative/source-assist:latest
 ```
 
+>NOTE: If docker functionality is not desired containers can be found with the `no-docker` flag for a smaller footprint
+
 ## Usage
+
+>NOTE: If running the containerized version, you will need to add the `-v /var/run/docker.sock:/var/run/docker.sock` flag to communicate with the Docker daemon as well as mounting the repository you want to operate on.
 
 SourceAssist is mapped to `sa` once installed. 
 `sa --help` will display all of the current subcommands present. Below is a brief overview of the included subcommands:

@@ -2,6 +2,19 @@
     "docker_build_info": [
         {
             "img_name": "source-assist",
+            "file": "Dockerfile-no-docker",
+            "tags": [
+                "no-docker"
+            ],
+            "version": "0.3.4",
+            "docker_registries": [
+                "projectinitiative",
+                "ghcr.io/projectinitiative"
+            ],
+            "build_args": {}
+        },
+        {
+            "img_name": "source-assist",
             "file": "Dockerfile",
             "tags": [],
             "version": "0.3.4",

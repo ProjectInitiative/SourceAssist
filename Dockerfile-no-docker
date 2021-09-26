@@ -17,7 +17,7 @@ RUN cp -r ./dist /dist
 FROM python:alpine AS app-container
 
 RUN apk update
-RUN apk add --no-cache git docker
+RUN apk add --no-cache git
 COPY --from=build-stage /dist /dist
 WORKDIR /dist
 RUN pip install "$(ls *.whl)"
